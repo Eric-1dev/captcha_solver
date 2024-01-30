@@ -1,5 +1,6 @@
 import os
 import cv2
+import matplotlib.pyplot as plt
 import random
 import imutils
 import time
@@ -10,11 +11,13 @@ from utils.utils import resize_to_fit
 
 def get_separate_letters(image):
 
-    image_resize = cv2.resize(image, (200, 10), cv2.INTER_AREA)
-    image_resize = cv2.resize(image_resize, (200, 60), cv2.INTER_AREA)
+    #image_resize = cv2.resize(image, (200, 10), cv2.INTER_AREA)
+    #image_resize = cv2.resize(image_resize, (200, 60), cv2.INTER_AREA)
 
-    gray = cv2.cvtColor(image_resize, cv2.COLOR_BGR2GRAY)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray = cv2.threshold(gray, 100, 250, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+
+    cv2.imshow("Preview", gray)
     
     finalImg = gray
     
@@ -65,9 +68,13 @@ def create_train_set(output_folder, markup_files):
     fails = 0
     
     for file in markup_files:
-        labels = [x for x in file.split('/')[-1].split('.')[0]]
+        labels = [x for x in file.split('\\')[-1].split('.')[0]]
 
-        image = cv2.imread(file)
+        filename = file.replace('\\', '/')
+
+        image = plt.imread(filename)
+
+        #image = cv2.imread(filename)
         letters = get_separate_letters(image)
 
         if len(letters) != 0 and len(letters) == len(labels):
