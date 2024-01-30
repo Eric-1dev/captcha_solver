@@ -65,7 +65,7 @@ def create_train_set(output_folder, markup_files):
     fails = 0
     
     for file in markup_files:
-        labels = [x for x in file.split('/')[-1].split('_num')[0]]
+        labels = [x for x in file.split('/')[-1].split('.')[0]]
 
         image = cv2.imread(file)
         letters = get_separate_letters(image)
