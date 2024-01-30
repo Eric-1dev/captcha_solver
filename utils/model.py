@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelBinarizer
 from keras.models import Sequential
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.layers.core import Flatten, Dense
-from utils.utils import image_preprocessing, letter_preprocessing
+from utils.utils import letter_preprocessing
 from utils.markup import get_separate_letters
 
 
@@ -22,7 +22,6 @@ class NN:
         self.binarizer = binarizer
         
     def solve(self, image):
-        image = image_preprocessing(image)
         letters = get_separate_letters(image)
         predictions = []
         for letter_image in letters:
@@ -65,10 +64,9 @@ class NN:
         self.binarizer = lb 
         return lb.transform(Y_train), lb.transform(Y_test)
     
-    def fit(self, X_train, X_test, Y_train, Y_test, batch_size=21, epochs=10, verbose=1):
+    def fit(self, X_train, X_test, Y_train, Y_test, batch_size=21, epochs = 100, verbose=1):
         Y_train, Y_test = self._binarize_labels(Y_train, Y_test)
-        self.model.fit(X_train, Y_train, validation_data=(X_test, Y_test), 
-                       batch_size=batch_size, epochs=epochs, verbose=verbose)
+        self.model.fit(X_train, Y_train, validation_data=(X_test, Y_test), batch_size=batch_size, epochs=epochs, verbose=verbose)
         
     def predict(self, letter_image):
         return self.model.predict(letter_image)

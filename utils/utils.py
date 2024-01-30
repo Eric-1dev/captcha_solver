@@ -22,13 +22,6 @@ def resize_to_fit(image, box_size):
     image = cv2.resize(image, (box_size, box_size))
     return image
 
-
-def image_preprocessing(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.copyMakeBorder(gray, 8, 8, 8, 8, cv2.BORDER_REPLICATE)
-    return cv2.threshold(gray, 0, 250, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
-
-
 def letter_preprocessing(image, box_size):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     # Resize the letter so it fits in a box

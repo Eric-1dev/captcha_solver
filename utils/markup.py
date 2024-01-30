@@ -5,45 +5,85 @@ import imutils
 import time
 import shutil
 import numpy as np
-from utils.utils import resize_to_fit, image_preprocessing
+from utils.utils import resize_to_fit
 
 
 def get_separate_letters(image):
-    contours = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    contours = contours[1] if imutils.is_cv3() else contours[0]
+
+    image_resize = cv2.resize(image, (200, 10), cv2.INTER_AREA)
+    image_resize = cv2.resize(image_resize, (200, 60), cv2.INTER_AREA)
+
+    gray = cv2.cvtColor(image_resize, cv2.COLOR_BGR2GRAY)
+    gray = cv2.threshold(gray, 100, 250, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+    
+    finalImg = gray
+    
+    contours = cv2.findContours(finalImg, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours = contours[0]
 
     letter_image_regions = []
+
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
-        if w / h > 1.25:
-            half_width = int(w / 2)
-            letter_image_regions.append((x, y, half_width, h))
-            letter_image_regions.append((x + half_width, y, half_width, h))
+
+        y = 0
+        h = 60
+
+        if w / h > 1.0:
+            if w < 75:
+                half_width = int(w / 2)
+                letter_image_regions.append((x, y, half_width, h))
+                letter_image_regions.append((x + half_width, y, half_width, h))
+            else:
+                aaa = int(w / 3)
+                letter_image_regions.append((x, y, aaa, h))
+                letter_image_regions.append((x + aaa, y, aaa, h))
+                letter_image_regions.append((x + 2 * aaa, y, aaa, h))
         else:
             letter_image_regions.append((x, y, w, h))
+
     letter_image_regions = sorted(letter_image_regions, key=lambda x: x[0])
     letters = []
+
     for letter_bounding_box in letter_image_regions:
         x, y, w, h = letter_bounding_box
-        letter_image = image[y - 2:y + h + 2, x - 2:x + w + 2]
-        if letter_image.shape[0] > 10 and letter_image.shape[1] > 10:
+
+        image_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        image_gray = cv2.threshold(image_gray, 50, 250, cv2.THRESH_BINARY_INV | cv2.THRESH_OTSU)[1]
+        letter_image = image_gray[2:59, x - 5:x + w + 5]
+
+        if w > 15 and letter_image.shape[1] > 15:
             letters.append(letter_image)
+
     return letters
 
-
 def create_train_set(output_folder, markup_files):
-    os.mkdir(output_folder)
+    if not os.path.exists(output_folder):
+        os.mkdir(output_folder)
+
     counts = {}
+    fails = 0
+    
     for file in markup_files:
-        labels = [x for x in file.split('.png')[0].split('/')[-1]]
+        labels = [x for x in file.split('/')[-1].split('_num')[0]]
+
         image = cv2.imread(file)
-        thresh = image_preprocessing(image)
-        letters = get_separate_letters(thresh)
-        for letter, label in zip(letters, labels):
-            save_path = os.path.join(output_folder, label) 
-            if not os.path.exists(save_path):
-                os.makedirs(save_path)
-            count = counts.get(label, 1)
-            p = os.path.join(save_path, "{}.png".format(str(count).zfill(6)))
-            cv2.imwrite(p, letter)
-            counts[label] = count + 1
+        letters = get_separate_letters(image)
+
+        if len(letters) != 0 and len(letters) == len(labels):
+            for letter, label in zip(letters, labels):
+                save_path = os.path.join(output_folder, label)
+
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+
+                count = counts.get(label, 1)
+                p = os.path.join(save_path, "{}.jpg".format(str(count).zfill(6)))
+
+                cv2.imwrite(p, letter)
+                counts[label] = count + 1
+        else:
+            fails += 1
+            print("letters count = {}, labels count = {}".format(len(letters), len(labels)))
+
+    print('Total: ' + str(len(markup_files)) + ' Fails: ' + str(fails))
