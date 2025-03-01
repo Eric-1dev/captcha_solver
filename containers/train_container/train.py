@@ -15,11 +15,11 @@ from utils.markup import create_train_set
 LETTER_IMAGES_FOLDER = "letters"
 
 
-def train_model(letters_path, save_path):
+def train_model(letters_path):
     data = []
     labels = []
 
-    for image_file in paths.list_images(LETTER_IMAGES_FOLDER):
+    for image_file in paths.list_images(letters_path):
         image = cv2.imread(image_file)
         image = letter_preprocessing(image, NN.box_size)
         label = image_file.split(os.path.sep)[-2]

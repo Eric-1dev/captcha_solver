@@ -6,14 +6,13 @@ import cv2
 import numpy as np
 from sklearn.preprocessing import LabelBinarizer
 from keras.models import Sequential
-from keras.layers.convolutional import Conv2D, MaxPooling2D
-from keras.layers.core import Flatten, Dense
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from utils.utils import letter_preprocessing
 from utils.markup import get_separate_letters
 
 
 class NN:
-    box_size = 20
+    box_size = 64
     MODEL_FILENAME = "captcha_model.pkl"
     MODEL_LABELS_FILENAME = "model_labels.pkl"
     
@@ -36,18 +35,29 @@ class NN:
     
     @classmethod
     def build(cls, alphabet_size, metrics=['accuracy'], optimizer="adam", loss="categorical_crossentropy"):
-        model = Sequential()
-        # First convolutional layer with max pooling
-        model.add(Conv2D(20, (5, 5), padding="same", input_shape=(cls.box_size, cls.box_size, 1), activation="relu"))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        # Second convolutional layer with max pooling
-        model.add(Conv2D(50, (5, 5), padding="same", activation="relu"))
-        model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
-        # Hidden layer with 500 nodes
-        model.add(Flatten())
-        model.add(Dense(500, activation="relu"))
-        # Output layer with 32 nodes (one for each possible letter/number we predict)
-        model.add(Dense(alphabet_size, activation="softmax"))
+        model = Sequential([
+
+            # Первый сверточный слой
+            Conv2D(32, (3, 3), padding="same", input_shape=(cls.box_size, cls.box_size, 1), activation="relu"),
+            MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+
+            # Второй сверточный слой
+            Conv2D(64, (3, 3), padding="same", activation="relu"),
+            MaxPooling2D(pool_size=(2, 2), strides=(2, 2)),
+            
+            # Переход к полносвязным слоям
+            Flatten(),
+            
+            # Дропаут для регуляризации
+            Dropout(0.5),
+
+            # Выходной слой
+            Dense(128, activation="relu"),
+
+            # Выходной слой
+            Dense(alphabet_size, activation="softmax")
+        ])
+
         # Ask Keras to build the TensorFlow model behind the scenes
         model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
         return cls(model, None)
@@ -64,7 +74,7 @@ class NN:
         self.binarizer = lb 
         return lb.transform(Y_train), lb.transform(Y_test)
     
-    def fit(self, X_train, X_test, Y_train, Y_test, batch_size=21, epochs = 100, verbose=1):
+    def fit(self, X_train, X_test, Y_train, Y_test, batch_size=32, epochs = 10, verbose=1):
         Y_train, Y_test = self._binarize_labels(Y_train, Y_test)
         self.model.fit(X_train, Y_train, validation_data=(X_test, Y_test), batch_size=batch_size, epochs=epochs, verbose=verbose)
         

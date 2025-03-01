@@ -2,11 +2,11 @@
 
 # captcha/utils/.ipynb_checkpoints/model-checkpoint.py: 10
 # captcha/utils/model.py: 10
-Keras == 2.11.0
+Keras == 2.13.1
 
 # captcha/.ipynb_checkpoints/app-checkpoint.py: 1
 # captcha/app.py: 1
-connexion == 2.14.2
+#connexion[flask,uvicorn,swagger-ui] == 3.0.6
 
 # captcha/.ipynb_checkpoints/test_app-checkpoint.ipynb: 6
 # captcha/test_app.ipynb: 6
@@ -30,7 +30,7 @@ matplotlib == 3.5.3
 # captcha/utils/markup.py: 6
 # captcha/utils/model.py: 6
 # captcha/utils/utils.py: 3
-numpy == 1.21.6
+numpy == 1.24.3
 
 # captcha/.ipynb_checkpoints/app-checkpoint.py: 4
 # captcha/.ipynb_checkpoints/test_app-checkpoint.ipynb: 1
@@ -42,11 +42,11 @@ numpy == 1.21.6
 # captcha/utils/markup.py: 2
 # captcha/utils/model.py: 5
 # captcha/utils/utils.py: 2
-opencv_python == 4.4.0.40
+opencv_python == 4.9.0.80
 
 # captcha/.ipynb_checkpoints/test_app-checkpoint.ipynb: 20
 # captcha/test_app.ipynb: 20
-pandas == 1.0.3
+pandas == 2.0.3
 
 # captcha/.ipynb_checkpoints/test_app-checkpoint.ipynb: 4
 # captcha/test_app.ipynb: 4
@@ -56,8 +56,8 @@ requests == 2.28.2
 # captcha/utils/model.py: 7
 scikit-learn == 0.23.1
 
-tensorflow==2.11.0
+tensorflow == 2.13.1
 
-cloudpickle==0.5.6
+cloudpickle == 0.5.6
 
-protobuf==3.20.*
+protobuf == 3.20.*

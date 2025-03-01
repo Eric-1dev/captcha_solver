@@ -3,10 +3,10 @@ services:
   captcha-solver:
     build:
       context: containers/api_container
-    container_name: captcha-solver
+    container_name: solver
     ports:
       - 2103:2103
-    command: python3.7 app.py
+    command: python3 app.py
     environment:
       - PORT=2103
     volumes:
@@ -16,8 +16,8 @@ services:
   captcha-trainer:
     build:
       context: containers/train_container
-    container_name: captcha-trainer
-    command: python3.7 train.py data/captcha_train -s model/
+    container_name: trainer
+    command: python3 train.py data -s model/
     volumes:
       - ./data:/data/
       - ./utils:/utils/
